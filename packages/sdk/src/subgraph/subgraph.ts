@@ -13,7 +13,7 @@ import {
   VariantTransactionData,
 } from "@connext/nxtp-utils";
 
-import { InvalidTxStatus, PollingNotActive } from "../error";
+import { InvalidTxStatus } from "../error";
 import {
   SenderTransactionPreparedPayload,
   SenderTransactionCancelledPayload,
@@ -156,12 +156,11 @@ export class Subgraph {
   }
 
   async startPolling(): Promise<void> {
-    await Promise.all(
-      Object.keys(this.sdks).map(async (_chainId) => {
-        const chainId = parseInt(_chainId);
-        this.pollingStopperBlock[chainId] = await this.chainReader.getBlockNumber(chainId);
-      }),
-    );
+    Object.keys(this.sdks).map(async (_chainId) => {
+      const chainId = parseInt(_chainId);
+      this.pollingStopperBlock[chainId] = await this.chainReader.getBlockNumber(chainId);
+    });
+
     if (this.pollingLoop == null) {
       this.pollingLoop = setInterval(async () => {
         const { methodContext, requestContext } = createLoggingContext("pollingLoop");
@@ -172,7 +171,10 @@ export class Subgraph {
             await Promise.all(
               Object.keys(this.sdks).map(async (_chainId) => {
                 const chainId = parseInt(_chainId);
-                if (this.pollingStopperBlock[chainId] > this.syncStatus[chainId].syncedBlock) {
+                if (
+                  !this.pollingStopperBlock[chainId] ||
+                  this.pollingStopperBlock[chainId] > this.syncStatus[chainId].syncedBlock
+                ) {
                   shouldStop = false;
                   return;
                 } else {
@@ -809,7 +811,7 @@ export class Subgraph {
     filter: (data: SubgraphEventPayloads[T]) => boolean = (_data: SubgraphEventPayloads[T]) => true,
   ): Promise<SubgraphEventPayloads[T]> {
     if (!this.pollingLoop) {
-      throw new PollingNotActive();
+      this.startPolling();
     }
     return this.evts[event].pipe(filter).waitFor(timeout) as Promise<SubgraphEventPayloads[T]>;
   }
