@@ -2,6 +2,46 @@
 
 ## Next Release
 
+## 0.1.34
+
+- [router] Metrics fix
+
+## 0.1.33
+
+- [contracts] Cronos chain deployments
+- [router] Metrics improvements
+
+## 0.1.32
+
+- [utils] ChainId ABI encoding
+
+## 0.1.31
+
+- [contracts] Boba network deployments
+- [contracts] Harmony One network deployments
+
+## 0.1.30
+
+- [utils] Fix bug in gas fee calc
+
+## 0.1.29
+
+- [contracts] Gather network deployments
+- [contracts] Cleanup deployment process
+
+## 0.1.28
+
+- [txservice] Fix gelato price estimation when it returns zero
+
+## 0.1.27
+
+- [utils] Fix Gelato price estimation
+
+## 0.1.26
+
+- [contracts] Deployments for Milkomeda
+- [utils] Gelato price estimation
+
 ## 0.1.25
 
 - [sdk] sdk subgraph active polling

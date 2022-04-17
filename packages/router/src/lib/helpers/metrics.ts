@@ -244,7 +244,7 @@ export const collectOnchainLiquidity = async (): Promise<Record<number, { assetI
 };
 
 export const collectGasBalance = async (): Promise<Record<number, number>> => {
-  const { config, txService, wallet, logger } = getContext();
+  const { config, txService, routerAddress, logger } = getContext();
 
   const balances: Record<number, number> = {};
   await Promise.all(
@@ -252,7 +252,7 @@ export const collectGasBalance = async (): Promise<Record<number, number>> => {
       .map((c) => +c)
       .map(async (chainId) => {
         try {
-          const balance = await txService.getBalance(chainId, await wallet.getAddress(), constants.AddressZero);
+          const balance = await txService.getBalance(chainId, routerAddress, constants.AddressZero);
           balances[chainId] = +utils.formatEther(balance.toString());
         } catch (e: any) {
           logger.warn("Failed to get gas balance", undefined, undefined, {
@@ -364,7 +364,6 @@ export const incrementFees = async (
   // Update counter
   feesCollected.inc(
     {
-      transactionId,
       sendingAssetId,
       sendingChainId,
       receivingAssetId,
@@ -441,7 +440,7 @@ export const incrementGasConsumed = async (
   // Update counter
   // TODO: reason type
   gasConsumed.inc(
-    { transactionId, sendingAssetId, sendingChainId, receivingAssetId, receivingChainId, reason, chainId },
+    { sendingAssetId, sendingChainId, receivingAssetId, receivingChainId, reason, chainId },
     usd,
   );
 };
@@ -489,7 +488,7 @@ export const incrementRelayerFeesPaid = async (
   const usd = await convertToUsd(assetId, chainId, relayerFee, requestContext);
 
   relayerFeesPaid.inc(
-    { transactionId, sendingAssetId, sendingChainId, receivingAssetId, receivingChainId, reason, chainId, assetId },
+    { sendingAssetId, sendingChainId, receivingAssetId, receivingChainId, reason, chainId, assetId },
     usd,
   );
 };
@@ -535,7 +534,6 @@ export const incrementTotalTransferredVolume = async (
 
   totalTransferredVolume.inc(
     {
-      transactionId,
       sendingAssetId,
       sendingChainId,
       receivingAssetId,
